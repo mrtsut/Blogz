@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <center><h1>entry</h1></center>
+  
+
+    {% if blogs|length == 0 %}
+    <p>No blogs yet, better start writing!</p>
+    {% else %}
+
+        
+            {% for blog in blogs %}
+            <h1>   {{blog.title}} </h1>
+                
+                {{blog.body}}
+
+
+                <form method="POST" action="/delete-task" style ="display:inline-block;">
+                    <input type="hidden" name="blog-id" value="{{blog.id}}" />
+                    
+                </form>
+            
+            <hr />
+            {% endfor %}
+        
+
+    {% endif %}
+
+    
+        
+
+{% endblock %}
