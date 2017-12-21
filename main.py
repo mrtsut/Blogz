@@ -1,8 +1,9 @@
+#Build-a-Blog code - Trevor Sutcliffe 12/2017 - Launchcode
+
+
 from flask import Flask, request, redirect, render_template
 from flask_sqlalchemy import SQLAlchemy
-import cgi
-import os
-import re
+
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -30,9 +31,9 @@ def blog_list():
     blogs = Blog.query.all()
     var = ''
     var = request.args.get('id')
-    if var is None:
+    if var is None:   # if there is no id parameter passed, show all the blogs on the blog.html page
         return render_template('blog.html', title="Build a blog", blogs=blogs)
-    else:
+    else:      #if there is a query parameter with the post id, store the title and body to pass to the template
         post = Blog.query.filter_by(id=var).first()
         p_title = post.title
         p_body = post.body
@@ -63,47 +64,19 @@ def blog_post():
             return render_template('/newpost.html', title_error=title_error, blog=blog)
 
         
-        if not blog_error and not title_error:
+        if not blog_error and not title_error:  #If there are no errors, create a new blog object to add to the db
 
             new_blog = Blog(title, blog)
             db.session.add(new_blog)
-            db.session.commit()         
-            return redirect('/blog')
+            db.session.commit() 
+            #after adding the new post to the database, store the title and body to pass to the entry.html page
+            post = Blog.query.filter_by(id=new_blog.id).first()
+            p_title = post.title
+            p_body = post.body
+            return render_template('entry.html', p_title=p_title, p_body=p_body)
      
 
     return render_template('/newpost.html')
-
-
-
-
-
-
-
-
-
-@app.route('/', methods=['GET'])
-def index():
-
-    return"<h1> HOME </h1>"
-
-
-
-
-
-
-@app.route('/delete-task', methods=['POST'])
-def delete_task():
-
-    task_id = int(request.form['task-id'])
-    task = Task.query.get(task_id)
-    task.completed = True
-    db.session.add(task)
-    db.session.commit()
-
-    return redirect ('/')
-
-
-
 
 
 if __name__ == '__main__':
