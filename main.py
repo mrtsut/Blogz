@@ -6,7 +6,7 @@ import re
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://blog:a@localhost:8889/blog'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://Blog:a@localhost:8889/blog'
 app.config['SQLALCHEMY_ECHO'] = True 
 db = SQLAlchemy(app)
 
@@ -30,22 +30,15 @@ def blog_list():
     blogs = Blog.query.all()
     var = ''
     var = request.args.get('id')
-    #if var != '':
-        #return render_template('entry.html',var=var)
-    
-    return render_template('blog.html', title="Build a blog", blogs=blogs)
+    if var is None:
+        return render_template('blog.html', title="Build a blog", blogs=blogs)
+    else:
+        post = Blog.query.filter_by(id=var).first()
+        p_title = post.title
+        p_body = post.body
+        
 
-
-
-
-@app.route('/entry', methods=['GET','POST'])
-def blog_entry():
-    
-
-
-    return "Hello"
-    
-
+        return render_template('entry.html', var=var, p_title=p_title, p_body=p_body)
 
 
 
