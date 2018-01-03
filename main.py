@@ -1,15 +1,16 @@
 #Blogz code - Trevor Sutcliffe 12/2017 - Launchcode
 
 
-from flask import Flask, request, redirect, render_template,session, flash
+from flask import Flask, request, redirect, render_template, session, flash
 from flask_sqlalchemy import SQLAlchemy
-app.secret_key = 'Qgj235'
+
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://blogz:a@localhost:8889/blogz'
 app.config['SQLALCHEMY_ECHO'] = True 
 db = SQLAlchemy(app)
+app.secret_key = 'Qgj235'
 
 class Blog(db.Model): 
 
@@ -39,12 +40,12 @@ class User(db.Model):
 
 @app.before_request
 def require_login():
-    allowed_routes = ['login', 'register']
-    if request.endpoint not in allowed_routes and 'email' not in session:
+    allowed_routes = ['login', 'blog_list', 'index', 'signup']
+    if request.endpoint not in allowed_routes: #and 'email' not in session:
         return redirect("/login")
-    
 
-@app.route('/blog', methods=['GET'])
+
+@app.route('/blog', methods=['GET','POST'])
 def blog_list():
     
     blogs = Blog.query.all()
@@ -119,13 +120,14 @@ def login():
 
 
 
-    return render_template('/login.html')
+    return render_template('login.html')
 
 
 
-@app.route('/signup',methods=['POST', 'GET'])
+@app.route('/signup', methods=['POST', 'GET'])
 def signup():
-    if reqeust.method == 'POST':
+
+    if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
         verify = request.form['verify']
@@ -146,7 +148,9 @@ def signup():
 @app.route('/logout')
 def logout():
     del session['email']
-    return redirect('/blog')
+    #return redirect('/blog')
+    return "sdfgsdfgsdfgsdf"
+    
 
 
 
