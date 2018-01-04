@@ -29,13 +29,13 @@ class Blog(db.Model):
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(120))
+    username = db.Column(db.String(120), unique=True)
     password = db.Column(db.String(120))
     blogs = db.relationship('Blog', backref='owner')        
 
-    def __init__(self, title, body):
-        self.title = title
-        self.body = body
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
 
 
 @app.before_request
@@ -68,7 +68,7 @@ def blog_list():
 def blog_post():
 
     #Added *****************************************************
-    owner = User.query.filter_by(email=session['email']).first()
+    owner = User.query.filter_by(username=session['username']).first()
 
     if request.method == 'POST':
         title = request.form['title']
@@ -107,18 +107,16 @@ def blog_post():
 def login():
 
     if request.method == 'POST':
-        email = request.form['email']
+        username = request.form['username']
         password = request.form['password']
-        user = User.query.filter_by(email=email).first()
+        user = User.query.filter_by(username=username).first()
         if user and user.password == password:
-            session['email'] =  email
+            session['username'] =  username
             flash("Logged in")
             return redirect('/newpost')
         else:
             #flash('User password incorrect, or user does not exist', 'error')
             return "<h1> Error, something went wrong with you signup info</h1>"
-
-
 
     return render_template('login.html')
 
@@ -126,24 +124,28 @@ def login():
 
 @app.route('/signup', methods=['POST', 'GET'])
 def signup():
-
+    
     if request.method == 'POST':
-        email = request.form['email']
+        username = request.form['username']
         password = request.form['password']
         verify = request.form['verify']
 
-        existing_user = User.query.filter_by(email=email).first()
+        existing_user = User.query.filter_by(username=username).first()
+
+           
         if not existing_user:
-            new_user = User(email, password)
+            new_user = User(username, password)
             db.session.add(new_user)
             db.session.commit()
-            session['email'] = email
-            return redirect ('/newpost')
+            session['username'] = username
+           # return redirect ('/newpost')
+            return "<h1>ADDED</h1>"
 
         else:
             return "<h1>Duplicate user</h1>"
 
     return render_template('/signup.html')
+
 
 @app.route('/logout')
 def logout():
