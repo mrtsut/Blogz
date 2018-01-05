@@ -41,7 +41,7 @@ class User(db.Model):
 @app.before_request
 def require_login():
     allowed_routes = ['login', 'blog_list', 'index', 'signup']
-    if request.endpoint not in allowed_routes: #and 'email' not in session:
+    if request.endpoint not in allowed_routes and 'username' not in session:
         return redirect("/login")
 
 
@@ -61,13 +61,22 @@ def blog_list():
 
         return render_template('entry.html', var=var, p_title=p_title, p_body=p_body)
 
+@app.route('/')
+def index():
+
+    users = User.query.all()
+
+    return render_template('index.html', users=users)
+
+
+
 
 
 
 @app.route('/newpost',methods=['POST', 'GET'])
 def blog_post():
 
-    #Added *****************************************************
+    
     owner = User.query.filter_by(username=session['username']).first()
 
     if request.method == 'POST':
@@ -117,6 +126,9 @@ def login():
         else:
             #flash('User password incorrect, or user does not exist', 'error')
             return "<h1> Error, something went wrong with you signup info</h1>"
+            #
+            # NEED TO ADD ERROR MESSAGE HANDLING
+            #
 
     return render_template('login.html')
 
@@ -138,8 +150,8 @@ def signup():
             db.session.add(new_user)
             db.session.commit()
             session['username'] = username
-           # return redirect ('/newpost')
-            return "<h1>ADDED</h1>"
+            return redirect ('/newpost')
+            
 
         else:
             return "<h1>Duplicate user</h1>"
@@ -149,9 +161,9 @@ def signup():
 
 @app.route('/logout')
 def logout():
-    del session['email']
-    #return redirect('/blog')
-    return "sdfgsdfgsdfgsdf"
+    del session['username']
+    return redirect('/blog')
+    
     
 
 
