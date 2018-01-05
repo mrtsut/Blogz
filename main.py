@@ -45,21 +45,35 @@ def require_login():
         return redirect("/login")
 
 
+
+
+
 @app.route('/blog', methods=['GET','POST'])
 def blog_list():
     
     blogs = Blog.query.all()
+    users = User.query.all()
     var = ''
     var = request.args.get('id')
+
     if var is None:   # if there is no id parameter passed, show all the blogs on the blog.html page
-        return render_template('blog.html', title="Build a blog", blogs=blogs)
+               
+        return render_template('blog.html', title="Blogz", blogs=blogs, users=users)
+
+
     else:      #if there is a query parameter with the post id, store the title and body to pass to the template
         post = Blog.query.filter_by(id=var).first()
+      
         p_title = post.title
         p_body = post.body
+        p_user = post.owner.username
         
 
-        return render_template('entry.html', var=var, p_title=p_title, p_body=p_body)
+        return render_template('entry.html', var=var, p_title=p_title, p_body=p_body, p_user=p_user)
+
+
+
+
 
 @app.route('/')
 def index():
@@ -105,7 +119,8 @@ def blog_post():
             post = Blog.query.filter_by(id=new_blog.id, owner=owner).first()
             p_title = post.title
             p_body = post.body
-            return render_template('entry.html', p_title=p_title, p_body=p_body)
+            p_user = post.owner.username
+            return render_template('entry.html', p_title=p_title, p_body=p_body, p_user = p_user)
      
 
     return render_template('/newpost.html')
