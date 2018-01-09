@@ -54,22 +54,27 @@ def blog_list():
     blogs = Blog.query.all()
     users = User.query.all()
     var = ''
-    var = request.args.get('id')
+    var2 = ''
+    blog_id = request.args.get('id')
+    owner_id = request.args.get('owner_id')
+    
 
-    if var is None:   # if there is no id parameter passed, show all the blogs on the blog.html page
+    if blog_id is None and owner_id is None:   # if there is no id parameter passed, show all the blogs on the blog.html page
                
         return render_template('blog.html', title="Blogz", blogs=blogs, users=users)
+    
+    elif blog_id is None and owner_id:
+        blogs = Blog.query.filter_by(owner_id=owner_id).all()
+        return render_template('singleUser.html', blogs=blogs)
 
 
-    else:      #if there is a query parameter with the post id, store the title and body to pass to the template
-        post = Blog.query.filter_by(id=var).first()
-      
-        p_title = post.title
-        p_body = post.body
-        p_user = post.owner.username
+    else:      #if there is a query parameter with_the post id, store the title and body to pass to the template
+       
+        blog = Blog.query.filter_by(id=blog_id).first()
+        return render_template('entry.html', blog=blog)
         
 
-        return render_template('entry.html', var=var, p_title=p_title, p_body=p_body, p_user=p_user)
+        
 
 
 

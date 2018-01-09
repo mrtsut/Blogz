@@ -2,11 +2,11 @@
 
 {% block content %}
 
-<h1>blog posts!</h1>
+<h1>Entry blog posts!</h1>
 
-    <h2>{{p_title}}</h2>
+    <h2>{{blog.title}}</h2>
             
-     {{p_body}}  <p>           
-<i>written by <a href="./blog?user={{p_user}}">{{p_user}}</a></i>
+     {{blog.body}}  <p>           
+<i>written by <a href="./blog?owner_id={{blog.owner.id}}">{{blog.owner.username}}</a></i>
 </p>
 {% endblock %}
