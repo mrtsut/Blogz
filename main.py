@@ -53,8 +53,8 @@ def blog_list():
     
     blogs = Blog.query.all()
     users = User.query.all()
-    var = ''
-    var2 = ''
+    blog_id = ''
+    owner_id = ''
     blog_id = request.args.get('id')
     owner_id = request.args.get('owner_id')
     
@@ -105,14 +105,14 @@ def blog_post():
         title_error = ''
         blog_error = ''
             
+        if title=='':
+            title_error = "you must add a title"
+       
         if blog=='':
             blog_error = "you must add a blog post"
-            return render_template('/newpost.html', blog_error=blog_error, title=title)
-            
-
-        if title== '':
-            title_error = "you must add a title"
-            return render_template('/newpost.html', title_error=title_error, blog=blog)
+            #return render_template('/newpost.html', blog_error=blog_error, title=title)
+                    
+            return render_template('/newpost.html', title_error=title_error, blog=blog, title=title, blog_error=blog_error)
 
         
         if not blog_error and not title_error:  #If there are no errors, create a new blog object to add to the db
@@ -121,11 +121,14 @@ def blog_post():
             db.session.add(new_blog)
             db.session.commit() 
             #after adding the new post to the database, store the title and body to pass to the entry.html page
-            post = Blog.query.filter_by(id=new_blog.id, owner=owner).first()
-            p_title = post.title
-            p_body = post.body
-            p_user = post.owner.username
-            return render_template('entry.html', p_title=p_title, p_body=p_body, p_user = p_user)
+            #post = Blog.query.filter_by(id=new_blog.id, owner=owner).first()
+           # p_title = post.title
+            #p_body = post.body
+            #p_user = post.owner.username
+           # return render_template('entry.html', p_title=p_title, p_body=p_body, p_user = p_user)
+            
+            blog = Blog.query.filter_by(id=new_blog.id).first()
+            return render_template('entry.html', blog=blog)
      
 
     return render_template('/newpost.html')
