@@ -105,14 +105,14 @@ def blog_post():
         title_error = ''
         blog_error = ''
             
-        if title=='':
+        if title == '':
             title_error = "you must add a title"
        
-        if blog=='':
+        if blog == '':
             blog_error = "you must add a blog post"
             #return render_template('/newpost.html', blog_error=blog_error, title=title)
                     
-            return render_template('/newpost.html', title_error=title_error, blog=blog, title=title, blog_error=blog_error)
+        #return render_template('/newpost.html', title_error=title_error, blog=blog, title=title, blog_error=blog_error)
 
         
         if not blog_error and not title_error:  #If there are no errors, create a new blog object to add to the db
@@ -128,7 +128,10 @@ def blog_post():
            # return render_template('entry.html', p_title=p_title, p_body=p_body, p_user = p_user)
             
             blog = Blog.query.filter_by(id=new_blog.id).first()
+
             return render_template('entry.html', blog=blog)
+        else:
+            return render_template('/newpost.html', title_error=title_error, blog=blog, title=title, blog_error=blog_error )
      
 
     return render_template('/newpost.html')
@@ -141,19 +144,32 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+
+        name_error =''
+        user_error =''
+        password_error = 'Incorrect Password'
+
         user = User.query.filter_by(username=username).first()
+        
+        if username == '':
+            name_error = "Please enter a username"
+
+        if password == '':
+            password_error= "Please enter a password"
+
+        if not user:
+            user_error = "Not a registered user "
+            name_error = ''
+
         if user and user.password == password:
             session['username'] =  username
-            flash("Logged in")
             return redirect('/newpost')
-        else:
-            #flash('User password incorrect, or user does not exist', 'error')
-            return "<h1> Error, something went wrong with you signup info</h1>"
-            #
-            # NEED TO ADD ERROR MESSAGE HANDLING
-            #
 
-    return render_template('login.html')
+        else:
+            return render_template('login.html', title='LOGIN', password_error=password_error, name_error=name_error,user_error=user_error, username=username)
+          
+
+    return render_template('login.html', title='LOGIN')
 
 
 
@@ -165,8 +181,10 @@ def signup():
         password = request.form['password']
         verify = request.form['verify']
 
-        existing_user = User.query.filter_by(username=username).first()
 
+        
+
+        existing_user = User.query.filter_by(username=username).first()
            
         if not existing_user:
             new_user = User(username, password)
