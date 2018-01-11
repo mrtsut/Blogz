@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>single user</h1>
+    <h1>Blog posts for {{user.username}}</h1>
   
 
     {% if blogs|length == 0 %}

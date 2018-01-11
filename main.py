@@ -1,7 +1,7 @@
 #Blogz code - Trevor Sutcliffe 12/2017 - Launchcode
 
 
-from flask import Flask, request, redirect, render_template, session, flash
+from flask import Flask, request, redirect, render_template, session
 from flask_sqlalchemy import SQLAlchemy
 
 
@@ -65,7 +65,8 @@ def blog_list():
     
     elif blog_id is None and owner_id:
         blogs = Blog.query.filter_by(owner_id=owner_id).all()
-        return render_template('singleUser.html', blogs=blogs)
+        user = User.query.filter_by(id=owner_id).first()
+        return render_template('singleUser.html', blogs=blogs, user=user)
 
 
     else:      #if there is a query parameter with_the post id, store the title and body to pass to the template
@@ -112,20 +113,14 @@ def blog_post():
             blog_error = "you must add a blog post"
             #return render_template('/newpost.html', blog_error=blog_error, title=title)
                     
-        #return render_template('/newpost.html', title_error=title_error, blog=blog, title=title, blog_error=blog_error)
-
-        
+                
         if not blog_error and not title_error:  #If there are no errors, create a new blog object to add to the db
 
             new_blog = Blog(title, blog, owner)
             db.session.add(new_blog)
             db.session.commit() 
             #after adding the new post to the database, store the title and body to pass to the entry.html page
-            #post = Blog.query.filter_by(id=new_blog.id, owner=owner).first()
-           # p_title = post.title
-            #p_body = post.body
-            #p_user = post.owner.username
-           # return render_template('entry.html', p_title=p_title, p_body=p_body, p_user = p_user)
+       
             
             blog = Blog.query.filter_by(id=new_blog.id).first()
 
@@ -175,29 +170,58 @@ def login():
 
 @app.route('/signup', methods=['POST', 'GET'])
 def signup():
-    
+    username_error = ''
+    password_error = ''
+    verify_error = ''
+
+    username = ''
+    password = ''
+    verify = ''
+
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
         verify = request.form['verify']
+    
+        existing_user = User.query.filter_by(username=username).first()
 
 
         
+        if len(username) < 3:
+            username_error = "Username must be at least 3 characters long"
+        if existing_user:
+            username_error = "Username already exists, get your own name"
+        if username == '':
+            username_error = "Enter a username"
 
-        existing_user = User.query.filter_by(username=username).first()
+        if len(password) < 3:
+            password_error = "Password must be at least 3 characters long"  
+        if password == '':
+            password_error = "Enter a password"
+        
+        
+        if verify != password:
+            verify_error = "Your password and verification must match"
+        if verify == '':
+            verify_error = "Enter your verification for your password"
+
+
+        if not username_error and not password_error and not verify_error:
+
+        
            
-        if not existing_user:
-            new_user = User(username, password)
-            db.session.add(new_user)
-            db.session.commit()
-            session['username'] = username
-            return redirect ('/newpost')
-            
-
+            if not existing_user:
+                new_user = User(username, password)
+                db.session.add(new_user)
+                db.session.commit()
+                session['username'] = username
+                return redirect ('/newpost')
         else:
-            return "<h1>Duplicate user</h1>"
-
+            return render_template('/signup.html',username=username,password=password, verify=verify, username_error=username_error,password_error=password_error,verify_error=verify_error)
+            
+        
     return render_template('/signup.html')
+
 
 
 @app.route('/logout')
