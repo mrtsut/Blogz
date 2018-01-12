@@ -86,7 +86,7 @@ def index():
 
     users = User.query.all()
 
-    return render_template('index.html', users=users)
+    return render_template('index.html', users=users, title="Blog Home")
 
 
 
@@ -129,7 +129,7 @@ def blog_post():
             return render_template('/newpost.html', title_error=title_error, blog=blog, title=title, blog_error=blog_error )
      
 
-    return render_template('/newpost.html')
+    return render_template('/newpost.html', title="Newpost")
 
 
 
@@ -148,6 +148,7 @@ def login():
         
         if username == '':
             name_error = "Please enter a username"
+            password = ''
 
         if password == '':
             password_error= "Please enter a password"
@@ -189,21 +190,35 @@ def signup():
         
         if len(username) < 3:
             username_error = "Username must be at least 3 characters long"
+            password = ''
+            veryify = ''
         if existing_user:
             username_error = "Username already exists, get your own name"
+            password = ''
+            veryify = ''
         if username == '':
             username_error = "Enter a username"
+            password = ''
+            veryify = ''
 
         if len(password) < 3:
             password_error = "Password must be at least 3 characters long"  
+            password = ''
+            veryify = ''
         if password == '':
             password_error = "Enter a password"
-        
+            password = ''
+            veryify = ''
         
         if verify != password:
             verify_error = "Your password and verification must match"
+            verify = ''
         if verify == '':
             verify_error = "Enter your verification for your password"
+            if password:
+                password_error = "Enter in your password AND matching verification"
+            password = ''
+            veryify = ''
 
 
         if not username_error and not password_error and not verify_error:
@@ -220,7 +235,7 @@ def signup():
             return render_template('/signup.html',username=username,password=password, verify=verify, username_error=username_error,password_error=password_error,verify_error=verify_error)
             
         
-    return render_template('/signup.html')
+    return render_template('/signup.html', title="Signup")
 
 
 
